@@ -599,8 +599,8 @@
 
   // --- PWA ---
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js').catch(() => {});
-  }
+  navigator.serviceWorker.register('sw.js').catch(() => {}); // มี catch อยู่แล้ว โอเค
+}
 
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault(); deferredPrompt = e;
@@ -663,11 +663,12 @@
   }
 
   function renderReceivers() {
-    const sel = document.getElementById('receiverFilter');
-    sel.innerHTML = '<option value="all" disabled selected>ทุกผู้รับบริจาค</option>' +
-      forFilter.map(r => `<option value="${r.id}">${r.name}</option>`).join('');
-    sel.onchange = (e) => renderProjects(e.target.value);
-  }
+  const sel = document.getElementById('receiverFilter');
+  const forFilter = rawData.receivers.filter(r => r.role !== 'admin');
+  sel.innerHTML = '<option value="all">ทุกผู้รับบริจาค</option>' +
+    forFilter.map(r => `<option value="${r.id}">${r.name}</option>`).join('');
+  sel.onchange = (e) => renderProjects(e.target.value);
+}
 
   function renderProjects(recId) {
     const container = document.getElementById('projectsContainer');
