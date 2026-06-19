@@ -431,10 +431,10 @@
     </div>
   </div>
 
-  <!-- <div class="filter-bar">
+  <div class="filter-bar">
     <span class="filter-label">กรองโดย</span>
-    <select id="receiverFilter"></select>
-  </div> -->
+    <select id="receiverFilter" ></select>
+  </div>
 
   <div class="section-container">
     <div class="section-title">โปรเจคที่เปิดรับ</div>
@@ -664,8 +664,8 @@
 
   function renderReceivers() {
     const sel = document.getElementById('receiverFilter');
-    sel.innerHTML = '<option value="all">ทุกผู้รับบริจาค</option>' +
-      rawData.receivers.map(r => `<option value="${r.id}">${r.name}</option>`).join('');
+    sel.innerHTML = '<option value="all" disabled selected>ทุกผู้รับบริจาค</option>' +
+      forFilter.map(r => `<option value="${r.id}">${r.name}</option>`).join('');
     sel.onchange = (e) => renderProjects(e.target.value);
   }
 
