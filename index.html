@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#1E1B4B">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>DonateHub</title>
+  <link rel="manifest" href="manifest.json">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Thai:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    :root {
+      --brand: #1E1B4B;
+      --brand-light: #312E81;
+      --accent: #F59E0B;
+      --accent-light: #FCD34D;
+      --success: #10B981;
+      --success-light: #D1FAE5;
+      --danger: #EF4444;
+      --bg: #F1F5F9;
+      --card: #FFFFFF;
+      --text: #0F172A;
+      --muted: #64748B;
+      --border: #E2E8F0;
+      --radius: 16px;
+      --radius-sm: 10px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', 'Noto Sans Thai', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* HEADER */
+    header {
+      background: var(--brand);
+      position: sticky; top: 0; z-index: 100;
+      padding: 0 16px;
+      height: 60px;
+      display: flex; align-items: center; justify-content: space-between;
+      box-shadow: 0 2px 20px rgba(30,27,75,0.4);
+    }
+    .logo {
+      display: flex; align-items: center; gap: 8px;
+      cursor: pointer; text-decoration: none;
+    }
+    .logo-icon {
+      width: 32px; height: 32px; background: var(--accent);
+      border-radius: 8px; display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+    }
+    .logo-text { color: white; font-weight: 800; font-size: 20px; letter-spacing: -0.5px; }
+    .logo-text span { color: var(--accent); }
+    #navBtn button {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: white; padding: 8px 16px;
+      border-radius: 100px; font-size: 13px; font-weight: 600;
+      cursor: pointer; transition: all 0.2s;
+      font-family: inherit;
+    }
+    #navBtn button:hover { background: rgba(255,255,255,0.2); }
+
+    /* PAGES */
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* MAIN PAGE */
+    .hero {
+      background: linear-gradient(135deg, var(--brand) 0%, var(--brand-light) 100%);
+      padding: 32px 16px 48px;
+      text-align: center; color: white;
+    }
+    .hero-title { font-size: 26px; font-weight: 800; line-height: 1.2; margin-bottom: 8px; }
+    .hero-subtitle { font-size: 14px; color: rgba(255,255,255,0.7); font-weight: 400; }
+    .hero-stats {
+      display: flex; justify-content: center; gap: 24px; margin-top: 24px;
+    }
+    .hero-stat { text-align: center; }
+    .hero-stat-num { font-size: 22px; font-weight: 800; color: var(--accent); }
+    .hero-stat-label { font-size: 11px; color: rgba(255,255,255,0.6); margin-top: 2px; }
+
+    .filter-bar {
+      margin: -20px 16px 16px;
+      background: white;
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .filter-label { font-size: 12px; font-weight: 600; color: var(--muted); white-space: nowrap; }
+    .filter-bar select {
+      flex: 1; border: none; background: var(--bg);
+      padding: 8px 12px; border-radius: 8px;
+      font-size: 14px; font-family: inherit; color: var(--text);
+      font-weight: 500; outline: none;
+    }
+
+    .section-container { padding: 0 16px 32px; }
+    .section-title { font-size: 13px; font-weight: 700; color: var(--muted); letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 12px; }
+
+    /* PROJECT CARDS */
+    .projects-grid { display: flex; flex-direction: column; gap: 14px; }
+    .project-card {
+      background: var(--card); border-radius: var(--radius);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      overflow: hidden; transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .project-card:active { transform: scale(0.98); }
+    .card-header {
+      padding: 16px 16px 0;
+      display: flex; justify-content: space-between; align-items: flex-start;
+    }
+    .card-badge {
+      font-size: 11px; font-weight: 700; padding: 3px 10px;
+      border-radius: 100px; background: var(--success-light);
+      color: var(--success);
+    }
+    .card-by { font-size: 11px; color: var(--muted); }
+    .card-body { padding: 10px 16px 14px; }
+    .card-title { font-size: 17px; font-weight: 700; line-height: 1.3; margin-bottom: 6px; }
+    .card-desc { font-size: 13px; color: var(--muted); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .card-progress { margin: 14px 0 4px; }
+    .progress-info { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px; }
+    .progress-current { font-weight: 700; color: var(--text); }
+    .progress-max { color: var(--muted); }
+    .progress-bar-bg {
+      height: 8px; background: var(--bg);
+      border-radius: 100px; overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%; border-radius: 100px;
+      background: linear-gradient(90deg, var(--success), #34D399);
+      position: relative; transition: width 0.6s ease;
+    }
+    .progress-bar-fill::after {
+      content: ''; position: absolute; right: 0; top: 0; bottom: 0;
+      width: 8px; background: rgba(255,255,255,0.5);
+      border-radius: 100px; animation: shimmer 1.5s infinite;
+    }
+    @keyframes shimmer { 0%,100% { opacity: 0; } 50% { opacity: 1; } }
+    .progress-percent { font-size: 11px; font-weight: 700; color: var(--success); margin-top: 4px; }
+    .card-footer { padding: 0 16px 16px; }
+    .btn-donate {
+      width: 100%; padding: 13px;
+      background: linear-gradient(135deg, var(--brand), var(--brand-light));
+      color: white; font-weight: 700; font-size: 15px;
+      border: none; border-radius: 12px; cursor: pointer;
+      font-family: inherit; transition: opacity 0.2s;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .btn-donate:active { opacity: 0.85; }
+
+    /* MODAL */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+      z-index: 200; display: none; align-items: flex-end;
+      backdrop-filter: blur(4px);
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-sheet {
+      background: white; width: 100%; max-height: 92vh;
+      border-radius: 24px 24px 0 0; overflow-y: auto;
+      padding-bottom: env(safe-area-inset-bottom, 16px);
+      animation: slideUp 0.3s ease;
+    }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .modal-handle {
+      width: 40px; height: 4px; background: var(--border);
+      border-radius: 100px; margin: 12px auto 0;
+    }
+    .modal-header {
+      padding: 16px 20px; display: flex;
+      justify-content: space-between; align-items: center;
+      border-bottom: 1px solid var(--border); position: sticky; top: 0;
+      background: white; z-index: 10;
+    }
+    .modal-title { font-size: 18px; font-weight: 800; }
+    .modal-close {
+      width: 32px; height: 32px; background: var(--bg);
+      border-radius: 100px; border: none; cursor: pointer;
+      font-size: 18px; display: flex; align-items: center; justify-content: center;
+    }
+    .modal-body { padding: 20px; }
+    .form-group { margin-bottom: 16px; }
+    .form-label { font-size: 12px; font-weight: 700; color: var(--muted); display: block; margin-bottom: 6px; letter-spacing: 0.3px; text-transform: uppercase; }
+    .form-input {
+      width: 100%; padding: 13px 14px; border: 1.5px solid var(--border);
+      border-radius: 12px; font-size: 15px; font-family: inherit;
+      transition: border-color 0.2s, box-shadow 0.2s; outline: none; color: var(--text);
+    }
+    .form-input:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(30,27,75,0.1); }
+    .amount-input {
+      font-size: 28px; font-weight: 800; text-align: center;
+      letter-spacing: -1px; color: var(--brand);
+    }
+    .amount-hint { font-size: 12px; color: var(--accent); font-weight: 600; text-align: center; margin-top: 4px; }
+
+    .qr-card {
+      background: linear-gradient(135deg, #F8FAFC, #EFF6FF);
+      border: 1.5px solid #DBEAFE; border-radius: 16px;
+      padding: 20px; text-align: center; margin: 16px 0;
+      display: none;
+    }
+    .qr-card.visible { display: block; }
+    .qr-label { font-size: 12px; color: var(--muted); font-weight: 500; margin-bottom: 12px; }
+    .qr-image { width: 160px; height: 160px; border-radius: 12px; border: 1px solid var(--border); background: white; padding: 8px; }
+    .qr-number {
+      display: inline-block; margin-top: 12px;
+      background: var(--brand); color: white;
+      padding: 6px 16px; border-radius: 100px;
+      font-size: 14px; font-weight: 700; letter-spacing: 1px;
+    }
+
+    .slip-upload {
+      border: 2px dashed var(--border); border-radius: 12px;
+      padding: 20px; text-align: center; cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .slip-upload:hover { border-color: var(--brand); background: #EFF6FF; }
+    .slip-icon { font-size: 28px; margin-bottom: 8px; }
+    .slip-text { font-size: 13px; color: var(--muted); font-weight: 500; }
+    .slip-upload input { display: none; }
+    .slip-preview {
+      width: 100%; border-radius: 10px; margin-top: 10px;
+      max-height: 150px; object-fit: cover; display: none;
+    }
+
+    .btn-submit {
+      width: 100%; padding: 15px;
+      background: linear-gradient(135deg, var(--accent), #F97316);
+      color: white; font-weight: 800; font-size: 16px;
+      border: none; border-radius: 14px; cursor: pointer;
+      font-family: inherit; transition: opacity 0.2s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      margin-top: 20px;
+    }
+    .btn-submit:active { opacity: 0.85; }
+
+    /* LOGIN PAGE */
+    .auth-container {
+      max-width: 380px; margin: 40px auto; padding: 0 16px;
+    }
+    .auth-card {
+      background: white; border-radius: var(--radius);
+      box-shadow: 0 8px 40px rgba(0,0,0,0.1); overflow: hidden;
+    }
+    .auth-top {
+      background: linear-gradient(135deg, var(--brand), var(--brand-light));
+      padding: 32px 24px; text-align: center;
+    }
+    .auth-icon { font-size: 40px; margin-bottom: 12px; }
+    .auth-title { color: white; font-size: 22px; font-weight: 800; }
+    .auth-subtitle { color: rgba(255,255,255,0.65); font-size: 13px; margin-top: 4px; }
+    .auth-body { padding: 24px; }
+    .btn-login {
+      width: 100%; padding: 14px;
+      background: var(--brand); color: white;
+      font-weight: 700; font-size: 15px; border: none;
+      border-radius: 12px; cursor: pointer; font-family: inherit;
+      transition: opacity 0.2s; margin-top: 8px;
+    }
+    .btn-login:active { opacity: 0.85; }
+
+    /* DASHBOARD */
+    .dashboard-header {
+      background: var(--brand);
+      padding: 20px 16px 60px;
+    }
+    .dash-greeting { color: rgba(255,255,255,0.7); font-size: 13px; }
+    .dash-name { color: white; font-size: 22px; font-weight: 800; margin-top: 2px; }
+    .dash-role {
+      display: inline-block; margin-top: 8px;
+      background: rgba(245,158,11,0.25); color: var(--accent-light);
+      padding: 3px 12px; border-radius: 100px; font-size: 12px; font-weight: 700;
+    }
+    .dash-content { margin: -40px 16px 0; }
+    .dash-cards {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 12px; margin-bottom: 16px;
+    }
+    .dash-stat-card {
+      background: white; border-radius: 14px; padding: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+    .dash-stat-label { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; }
+    .dash-stat-value { font-size: 24px; font-weight: 800; margin-top: 4px; color: var(--text); }
+    .dash-stat-sub { font-size: 11px; color: var(--success); font-weight: 600; margin-top: 2px; }
+
+    .tab-nav {
+      background: white; border-radius: 14px; padding: 4px;
+      display: flex; gap: 4px; margin-bottom: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+    .tab-btn {
+      flex: 1; padding: 10px; border: none; background: transparent;
+      font-family: inherit; font-size: 13px; font-weight: 600;
+      color: var(--muted); border-radius: 10px; cursor: pointer; transition: all 0.2s;
+    }
+    .tab-btn.active { background: var(--brand); color: white; }
+
+    .dash-section { display: none; }
+    .dash-section.active { display: block; }
+
+    .add-form-card {
+      background: white; border-radius: 14px; padding: 20px;
+      margin-bottom: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+    .form-title { font-size: 16px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .btn-add {
+      width: 100%; padding: 13px;
+      background: linear-gradient(135deg, var(--success), #059669);
+      color: white; font-weight: 700; font-size: 15px;
+      border: none; border-radius: 12px; cursor: pointer;
+      font-family: inherit; margin-top: 4px;
+    }
+    .btn-logout {
+      background: transparent; border: 1.5px solid rgba(255,255,255,0.3);
+      color: rgba(255,255,255,0.8); padding: 8px 16px;
+      border-radius: 100px; font-size: 12px; font-weight: 600;
+      cursor: pointer; font-family: inherit; float: right; margin-top: 4px;
+    }
+
+    .proj-item {
+      background: white; border-radius: 12px; padding: 14px 16px;
+      margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .proj-item-info { flex: 1; min-width: 0; }
+    .proj-item-title { font-weight: 700; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .proj-item-meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .status-badge {
+      font-size: 11px; font-weight: 700; padding: 2px 8px;
+      border-radius: 100px; display: inline-block; margin-left: 6px;
+    }
+    .status-active { background: var(--success-light); color: var(--success); }
+    .status-closed { background: #FEE2E2; color: var(--danger); }
+    .btn-toggle {
+      border: 1.5px solid var(--border); background: transparent;
+      padding: 6px 12px; border-radius: 8px; font-size: 11px;
+      font-weight: 600; cursor: pointer; font-family: inherit;
+      color: var(--text); white-space: nowrap; flex-shrink: 0; margin-left: 10px;
+    }
+
+    .don-row {
+      background: white; border-radius: 12px; padding: 14px 16px;
+      margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+    }
+    .don-name { font-weight: 600; font-size: 14px; }
+    .don-proj { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .don-date { font-size: 10px; color: var(--muted); margin-top: 1px; }
+    .don-amount { font-size: 18px; font-weight: 800; color: var(--success); }
+    .don-unit { font-size: 11px; font-weight: 400; }
+
+    .empty-state {
+      text-align: center; padding: 48px 24px; color: var(--muted);
+    }
+    .empty-icon { font-size: 48px; margin-bottom: 12px; }
+    .empty-text { font-size: 14px; }
+
+    @media (min-width: 640px) {
+      .projects-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+      .hero-title { font-size: 32px; }
+    }
+    @media (min-width: 1024px) {
+      .projects-grid { grid-template-columns: 1fr 1fr 1fr; }
+    }
+
+    /* PWA Install Banner */
+    #installBanner {
+      background: linear-gradient(135deg, var(--accent), #F97316);
+      color: white; padding: 12px 16px;
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 13px; font-weight: 600; display: none;
+    }
+    #installBanner .close-banner {
+      background: rgba(255,255,255,0.25); border: none;
+      color: white; padding: 4px 10px; border-radius: 100px;
+      font-size: 12px; cursor: pointer; font-family: inherit;
+    }
+
+    /* Toast */
+    .toast-container { position: fixed; top: 70px; left: 50%; transform: translateX(-50%); z-index: 300; pointer-events: none; }
+    .toast {
+      background: var(--text); color: white;
+      padding: 10px 20px; border-radius: 100px; font-size: 13px; font-weight: 600;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      animation: toastIn 0.3s ease; white-space: nowrap;
+    }
+    @keyframes toastIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+
+<div id="installBanner">
+  <span>📱 เพิ่มลงหน้าจอหลักเพื่อรับแจ้งเตือน</span>
+  <button class="close-banner" onclick="dismissBanner()">ปิด</button>
+</div>
+
+<header>
+  <a class="logo" onclick="showPage('mainPage')" style="text-decoration:none">
+    <div class="logo-icon">💙</div>
+    <span class="logo-text">Donate<span>Hub</span></span>
+  </a>
+  <div id="navBtn"></div>
+</header>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- MAIN PAGE -->
+<div id="mainPage" class="page active">
+  <div class="hero">
+    <div class="hero-title">ร่วมเป็นส่วนหนึ่ง<br>ของการเปลี่ยนแปลง 💙</div>
+    <div class="hero-subtitle">บริจาคเพื่อโปรเจคที่คุณเชื่อ ยืนยันทันที ปลอดภัย 100%</div>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-num" id="statProjects">—</div>
+        <div class="hero-stat-label">โปรเจคที่เปิดรับ</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num" id="statReceivers">—</div>
+        <div class="hero-stat-label">ผู้รับบริจาค</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="filter-bar">
+    <span class="filter-label">กรองโดย</span>
+    <select id="receiverFilter"></select>
+  </div>
+
+  <div class="section-container">
+    <div class="section-title">โปรเจคที่เปิดรับ</div>
+    <div id="projectsContainer" class="projects-grid"></div>
+  </div>
+</div>
+
+<!-- LOGIN PAGE -->
+<div id="loginPage" class="page">
+  <div class="auth-container">
+    <div class="auth-card">
+      <div class="auth-top">
+        <div class="auth-icon">🔐</div>
+        <div class="auth-title">ล็อกอินเข้าระบบ</div>
+        <div class="auth-subtitle">สำหรับ Receiver และ Admin เท่านั้น</div>
+      </div>
+      <div class="auth-body">
+        <form id="loginForm">
+          <div class="form-group">
+            <label class="form-label">Username</label>
+            <input type="text" id="loginUser" class="form-input" placeholder="ชื่อผู้ใช้" required autocomplete="username">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" id="loginPass" class="form-input" placeholder="รหัสผ่าน" required autocomplete="current-password">
+          </div>
+          <button type="submit" class="btn-login">เข้าสู่ระบบ →</button>
+        </form>
+        <p style="text-align:center;margin-top:16px;font-size:12px;color:var(--muted)">
+          ผู้บริจาคไม่ต้องล็อกอิน <a onclick="showPage('mainPage')" style="color:var(--brand);font-weight:700;cursor:pointer">กลับหน้าหลัก</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD PAGE -->
+<div id="dashboardPage" class="page">
+  <div class="dashboard-header">
+    <button class="btn-logout" onclick="logout()">ออกจากระบบ</button>
+    <div class="dash-greeting">ยินดีต้อนรับกลับ 👋</div>
+    <div class="dash-name" id="dashName">—</div>
+    <div><span class="dash-role" id="dashRole">—</span></div>
+  </div>
+  <div class="dash-content">
+    <div class="dash-cards">
+      <div class="dash-stat-card">
+        <div class="dash-stat-label">โปรเจคทั้งหมด</div>
+        <div class="dash-stat-value" id="statTotalProj">0</div>
+        <div class="dash-stat-sub">โปรเจคของฉัน</div>
+      </div>
+      <div class="dash-stat-card">
+        <div class="dash-stat-label">ยอดรับรวม</div>
+        <div class="dash-stat-value" id="statTotalAmt">฿0</div>
+        <div class="dash-stat-sub">ทุกโปรเจค</div>
+      </div>
+    </div>
+
+    <div class="tab-nav">
+      <button class="tab-btn active" id="btnTab1" onclick="switchTab('tab1')">📁 โปรเจค</button>
+      <button class="tab-btn" id="btnTab2" onclick="switchTab('tab2')">💰 ประวัติโดเนท</button>
+    </div>
+
+    <!-- Tab 1: Projects -->
+    <div id="tab1" class="dash-section active">
+      <div class="add-form-card">
+        <div class="form-title">✨ สร้างโปรเจคใหม่</div>
+        <form id="addProjectForm">
+          <div class="form-group">
+            <label class="form-label">ชื่อโปรเจค</label>
+            <input type="text" id="newProjTitle" class="form-input" placeholder="เช่น ช่วยเหลือน้องๆ ม.4..." required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">รายละเอียด</label>
+            <textarea id="newProjDesc" class="form-input" rows="2" placeholder="บอกเล่าเรื่องราวของโปรเจค..." required style="resize:none"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">เบอร์ PromptPay (ของโปรเจคนี้)</label>
+            <input type="text" id="newProjPP" class="form-input" placeholder="0812345678" required>
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">ขั้นต่ำ (บาท)</label>
+              <input type="number" id="newProjMin" class="form-input" placeholder="20" required min="1">
+            </div>
+            <div class="form-group">
+              <label class="form-label">เป้าหมาย (บาท)</label>
+              <input type="number" id="newProjMax" class="form-input" placeholder="5000" required min="1">
+            </div>
+          </div>
+          <button type="submit" class="btn-add">+ เพิ่มโปรเจค</button>
+        </form>
+      </div>
+      <div id="dashProjectsList"></div>
+    </div>
+
+    <!-- Tab 2: Donations -->
+    <div id="tab2" class="dash-section">
+      <div id="dashDonationsList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- DONATE MODAL -->
+<div id="donateModal" class="modal-overlay">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <span class="modal-title" id="modalProjectTitle">โดเนทโปรเจค</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="donateForm">
+        <input type="hidden" id="selectedProjectId">
+        <input type="hidden" id="selectedProjectPromptpay">
+        <input type="hidden" id="selectedProjectMin">
+
+        <div class="form-group">
+          <label class="form-label">ชื่อของคุณ</label>
+          <input type="text" id="donatorName" class="form-input" placeholder="ชื่อ-นามสกุล" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">อีเมล (รับการยืนยัน)</label>
+          <input type="email" id="donatorEmail" class="form-input" placeholder="example@email.com" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">จำนวนเงิน (บาท)</label>
+          <input type="number" id="amount" class="form-input amount-input" placeholder="0" required oninput="generateQR()">
+          <div class="amount-hint" id="amountHint"></div>
+        </div>
+
+        <div class="qr-card" id="qrCard">
+          <div class="qr-label">📱 สแกน QR หรือโอนผ่านเลขด้านล่าง</div>
+          <img id="qrImage" class="qr-image" src="" alt="QR Code">
+          <div><span class="qr-number" id="displayPromptpay"></span></div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">แนบสลิปการโอน</label>
+          <label class="slip-upload" for="slipFile">
+            <div class="slip-icon">📎</div>
+            <div class="slip-text" id="slipText">แตะเพื่อเลือกรูปสลิป<br><span style="font-size:11px;color:#94A3B8">รองรับ JPG, PNG</span></div>
+            <img id="slipPreview" class="slip-preview" alt="preview">
+            <input type="file" id="slipFile" accept="image/jpeg,image/png" required onchange="previewSlip(this)">
+          </label>
+        </div>
+
+        <button type="submit" class="btn-submit">
+          ✅ ยืนยันและตรวจสลิปอัตโนมัติ
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  const GAS_URL = 'https://script.google.com/macros/s/AKfycby_OV8QKLtFWBPSCCdOYIk3YAkwLvZp-7xwgbBCSaMgUjrr9czc62S-JgSiUj-zmZv-eQ/exec';
+  let rawData = { receivers: [], projects: [] };
+  let currentUser = null;
+  let dashData = { projects: [], donations: [] };
+  let deferredPrompt = null;
+
+  // --- PWA ---
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault(); deferredPrompt = e;
+    if (!localStorage.getItem('pwa_dismissed')) {
+      document.getElementById('installBanner').style.display = 'flex';
+    }
+  });
+
+  function dismissBanner() {
+    document.getElementById('installBanner').style.display = 'none';
+    localStorage.setItem('pwa_dismissed', '1');
+  }
+
+  // --- INIT ---
+  document.addEventListener('DOMContentLoaded', () => {
+    const saved = localStorage.getItem('donate_user');
+    if (saved) { try { currentUser = JSON.parse(saved); } catch(e) {} }
+    updateNav();
+    fetchPublicData();
+  });
+
+  function showToast(msg, emoji = '✅') {
+    const el = document.createElement('div');
+    el.className = 'toast';
+    el.textContent = emoji + ' ' + msg;
+    document.getElementById('toastContainer').appendChild(el);
+    setTimeout(() => el.remove(), 2800);
+  }
+
+  function showPage(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo(0, 0);
+    if (id === 'dashboardPage') loadDashboard();
+    if (id === 'mainPage') fetchPublicData();
+  }
+
+  function updateNav() {
+    const nav = document.getElementById('navBtn');
+    if (currentUser) {
+      nav.innerHTML = `<button onclick="showPage('dashboardPage')">Dashboard →</button>`;
+    } else {
+      nav.innerHTML = `<button onclick="showPage('loginPage')">ล็อกอิน</button>`;
+    }
+  }
+
+  async function fetchPublicData() {
+    try {
+      const res = await fetch(GAS_URL, {
+        method: 'POST', body: JSON.stringify({ action: 'get_public_data' })
+      }).then(r => r.json());
+      if (res.status === 'success') {
+        rawData = res.data;
+        renderReceivers();
+        renderProjects('all');
+        document.getElementById('statProjects').textContent = rawData.projects.length;
+        document.getElementById('statReceivers').textContent = rawData.receivers.length;
+      }
+    } catch (e) { console.error(e); }
+  }
+
+  function renderReceivers() {
+    const sel = document.getElementById('receiverFilter');
+    sel.innerHTML = '<option value="all">ทุกผู้รับบริจาค</option>' +
+      rawData.receivers.map(r => `<option value="${r.id}">${r.name}</option>`).join('');
+    sel.onchange = (e) => renderProjects(e.target.value);
+  }
+
+  function renderProjects(recId) {
+    const container = document.getElementById('projectsContainer');
+    const filtered = recId === 'all' ? rawData.projects : rawData.projects.filter(p => p.receiverId === recId);
+    if (!filtered.length) {
+      container.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">🔍</div><div class="empty-text">ไม่พบโปรเจคในขณะนี้</div></div>`;
+      return;
+    }
+    container.innerHTML = filtered.map(p => {
+      const r = rawData.receivers.find(x => x.id === p.receiverId);
+      const percent = Math.min(100, Math.round((p.current / p.max) * 100));
+      return `
+        <div class="project-card">
+          <div class="card-header">
+            <span class="card-by">โดย ${r ? r.name : '—'}</span>
+            <span class="card-badge">เปิดรับ ✓</span>
+          </div>
+          <div class="card-body">
+            <div class="card-title">${p.title}</div>
+            <div class="card-desc">${p.description}</div>
+            <div class="card-progress">
+              <div class="progress-info">
+                <span class="progress-current">฿${Number(p.current).toLocaleString()}</span>
+                <span class="progress-max">เป้า ฿${Number(p.max).toLocaleString()}</span>
+              </div>
+              <div class="progress-bar-bg">
+                <div class="progress-bar-fill" style="width:${percent}%"></div>
+              </div>
+              <div class="progress-percent">${percent}% ของเป้าหมาย</div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <button class="btn-donate" onclick="openDonate('${p.id}','${p.promptpay}',${p.min},'${p.title.replace(/'/g,'&apos;')}')">
+              💙 บริจาค (ขั้นต่ำ ฿${Number(p.min).toLocaleString()})
+            </button>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function openDonate(id, promptpay, min, title) {
+    document.getElementById('selectedProjectId').value = id;
+    document.getElementById('selectedProjectPromptpay').value = promptpay;
+    document.getElementById('selectedProjectMin').value = min;
+    document.getElementById('modalProjectTitle').textContent = title;
+    document.getElementById('amountHint').textContent = `ขั้นต่ำ ฿${Number(min).toLocaleString()}`;
+    document.getElementById('amount').min = min;
+    document.getElementById('donateForm').reset();
+    document.getElementById('qrCard').classList.remove('visible');
+    document.getElementById('slipPreview').style.display = 'none';
+    document.getElementById('slipText').style.display = 'block';
+    document.getElementById('donateModal').classList.add('open');
+    // Re-apply min after reset
+    document.getElementById('amount').min = min;
+  }
+
+  function closeModal() {
+    document.getElementById('donateModal').classList.remove('open');
+  }
+
+  function generateQR() {
+    const amt = document.getElementById('amount').value;
+    const pp = document.getElementById('selectedProjectPromptpay').value;
+    if (amt > 0 && pp) {
+      document.getElementById('qrImage').src = `https://promptpay.io/${pp}/${amt}.png`;
+      document.getElementById('displayPromptpay').textContent = pp;
+      document.getElementById('qrCard').classList.add('visible');
+    } else {
+      document.getElementById('qrCard').classList.remove('visible');
+    }
+  }
+
+  function previewSlip(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = document.getElementById('slipPreview');
+      img.src = e.target.result;
+      img.style.display = 'block';
+      document.getElementById('slipText').style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  document.getElementById('donateForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const min = parseFloat(document.getElementById('selectedProjectMin').value);
+    const amt = parseFloat(document.getElementById('amount').value);
+    if (amt < min) {
+      Swal.fire({ icon: 'warning', title: 'จำนวนเงินน้อยเกินไป', text: `กรุณาโอนขั้นต่ำ ฿${min}`, confirmButtonColor: '#1E1B4B' });
+      return;
+    }
+    const file = document.getElementById('slipFile').files[0];
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const payload = {
+        action: 'submit_donation',
+        data: {
+          projectId: document.getElementById('selectedProjectId').value,
+          amount: amt,
+          donatorName: document.getElementById('donatorName').value,
+          donatorEmail: document.getElementById('donatorEmail').value,
+          base64Image: reader.result
+        }
+      };
+      Swal.fire({ title: '🔍 กำลังตรวจสอบสลิป...', text: 'ระบบ AI กำลังยืนยันการโอน', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+      try {
+        const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) }).then(r => r.json());
+        if (res.status === 'success') {
+          Swal.fire({ icon: 'success', title: '💙 บริจาคสำเร็จ!', text: 'ขอบคุณสำหรับการสนับสนุน', confirmButtonColor: '#10B981' }).then(() => {
+            closeModal();
+            fetchPublicData();
+          });
+          // Push notification (if permission granted)
+          if (Notification.permission === 'granted') {
+            new Notification('DonateHub', { body: `บริจาค ฿${amt} สำเร็จแล้ว! ขอบคุณ 💙`, icon: '/icon-192.png' });
+          }
+        } else {
+          Swal.fire({ icon: 'error', title: 'ไม่สำเร็จ', text: res.message, confirmButtonColor: '#EF4444' });
+        }
+      } catch (err) {
+        Swal.fire({ icon: 'error', title: 'เซิร์ฟเวอร์ขัดข้อง', text: 'กรุณาลองใหม่อีกครั้ง', confirmButtonColor: '#EF4444' });
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // --- AUTH ---
+  document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    Swal.fire({ title: 'กำลังเข้าสู่ระบบ...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+    const payload = {
+      action: 'login',
+      data: { username: document.getElementById('loginUser').value, password: document.getElementById('loginPass').value }
+    };
+    const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) }).then(r => r.json());
+    if (res.status === 'success') {
+      currentUser = res.data;
+      localStorage.setItem('donate_user', JSON.stringify(currentUser));
+      updateNav(); Swal.close();
+      showPage('dashboardPage');
+      // Request notification permission
+      if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission();
+      }
+    } else {
+      Swal.fire({ icon: 'error', title: 'ล็อกอินไม่สำเร็จ', text: res.message, confirmButtonColor: '#EF4444' });
+    }
+  });
+
+  function logout() {
+    currentUser = null;
+    localStorage.removeItem('donate_user');
+    updateNav(); showPage('mainPage');
+    showToast('ออกจากระบบแล้ว', '👋');
+  }
+
+  // --- DASHBOARD ---
+  async function loadDashboard() {
+    if (!currentUser) return;
+    document.getElementById('dashName').textContent = currentUser.name;
+    document.getElementById('dashRole').textContent = currentUser.role === 'admin' ? '👑 Admin' : '🎯 Receiver';
+    Swal.fire({ title: 'กำลังโหลด...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+    const res = await fetch(GAS_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'get_dashboard', data: { userId: currentUser.id } })
+    }).then(r => r.json());
+    if (res.status === 'success') {
+      dashData = res.data;
+      renderDashStats();
+      renderDashProjects();
+      renderDashDonations();
+      Swal.close();
+    }
+  }
+
+  function renderDashStats() {
+    document.getElementById('statTotalProj').textContent = dashData.projects.length;
+    const total = dashData.donations.reduce((s, d) => s + parseFloat(d.amount || 0), 0);
+    document.getElementById('statTotalAmt').textContent = '฿' + Number(total).toLocaleString();
+  }
+
+  function switchTab(id) {
+    ['tab1','tab2'].forEach(t => {
+      document.getElementById(t).classList.remove('active');
+    });
+    ['btnTab1','btnTab2'].forEach(b => document.getElementById(b).classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.getElementById(id === 'tab1' ? 'btnTab1' : 'btnTab2').classList.add('active');
+  }
+
+  document.getElementById('addProjectForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    Swal.fire({ title: 'กำลังสร้าง...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+    const payload = {
+      action: 'save_project',
+      data: {
+        userId: currentUser.id,
+        promptpay: document.getElementById('newProjPP').value,
+        title: document.getElementById('newProjTitle').value,
+        description: document.getElementById('newProjDesc').value,
+        minAmount: document.getElementById('newProjMin').value,
+        maxAmount: document.getElementById('newProjMax').value
+      }
+    };
+    const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) }).then(r => r.json());
+    if (res.status === 'success') {
+      Swal.fire({ icon: 'success', title: 'สร้างโปรเจคแล้ว! 🎉', confirmButtonColor: '#10B981' });
+      document.getElementById('addProjectForm').reset();
+      loadDashboard();
+    } else {
+      Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: res.message });
+    }
+  });
+
+  async function toggleStatus(id) {
+    Swal.fire({ title: 'กำลังเปลี่ยนสถานะ...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+    await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'toggle_project', data: { projectId: id } }) });
+    loadDashboard();
+  }
+
+  function renderDashProjects() {
+    const el = document.getElementById('dashProjectsList');
+    if (!dashData.projects.length) {
+      el.innerHTML = `<div class="empty-state"><div class="empty-icon">📁</div><div class="empty-text">ยังไม่มีโปรเจค กรอกแบบฟอร์มด้านบนเพื่อสร้างโปรเจคแรก</div></div>`;
+      return;
+    }
+    el.innerHTML = dashData.projects.map(p => `
+      <div class="proj-item">
+        <div class="proj-item-info">
+          <div class="proj-item-title">${p.title} <span class="status-badge ${p.status === 'active' ? 'status-active' : 'status-closed'}">${p.status === 'active' ? 'เปิด' : 'ปิด'}</span></div>
+          <div class="proj-item-meta">PP: ${p.promptpay} &nbsp;|&nbsp; ฿${Number(p.current).toLocaleString()} / ฿${Number(p.max).toLocaleString()}</div>
+        </div>
+        <button class="btn-toggle" onclick="toggleStatus('${p.id}')">${p.status === 'active' ? 'ปิดรับ' : 'เปิดรับ'}</button>
+      </div>
+    `).join('');
+  }
+
+  function renderDashDonations() {
+    const el = document.getElementById('dashDonationsList');
+    if (!dashData.donations.length) {
+      el.innerHTML = `<div class="empty-state"><div class="empty-icon">💰</div><div class="empty-text">ยังไม่มีรายการโดเนท</div></div>`;
+      return;
+    }
+    el.innerHTML = dashData.donations.slice().reverse().map(d => {
+      const proj = dashData.projects.find(p => p.id === d.projectId);
+      return `
+        <div class="don-row">
+          <div>
+            <div class="don-name">${d.donatorName}</div>
+            <div class="don-proj">${proj ? proj.title : 'โปรเจคที่ลบแล้ว'}</div>
+            <div class="don-date">${new Date(d.date).toLocaleString('th-TH')}</div>
+          </div>
+          <div class="don-amount">฿${Number(d.amount).toLocaleString()}<span class="don-unit"></span></div>
+        </div>`;
+    }).join('');
+  }
+
+  // Close modal on overlay click
+  document.getElementById('donateModal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+</script>
+</body>
+</html>
